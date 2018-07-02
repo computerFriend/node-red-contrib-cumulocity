@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-cumulocity",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Library of node-red nodes supporting integration with Cumulocity",
   "main": "none",
   "devDependencies": {},
@@ -31,7 +31,7 @@
     "nodes": {
       "c8y-events": "c8y-events.js",
       "c8y-measurements": "c8y-measurements.js",
-      "c8y-alarms2": "c8y-alarms2.js"
+      "c8y-alarms": "c8y-alarms.js"
     }
   }
 }
