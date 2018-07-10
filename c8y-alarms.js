@@ -14,6 +14,9 @@ module.exports = function(RED) {
 		// Setup node
 		RED.nodes.createNode(this, n);
 		var node = this;
+		this.config = RED.nodes.getNode(n.cumulocityConfig);
+		var tenant = this.config.tenant,
+			domain = this.config.host;
 
 		this.ret = n.ret || "txt"; // default return type is text
 		if (RED.settings.httpRequestTimeout) {
@@ -24,9 +27,6 @@ module.exports = function(RED) {
 
 		// 1) Process inputs to Node
 		this.on("input", function(msg) {
-
-			var tenant = n.tenant;
-			var domain = n.domain; // TODO: get this from settings value in the future
 
 				node.status({
 					fill: "blue",
@@ -63,9 +63,10 @@ module.exports = function(RED) {
 					pathAndQuery = basePath + '?' + thisQueryString;
 				}
 
+				var encodedCreds = '';
+
 				// Adding auth header // TODO: develop a more secure way to do this
-				var encodedCreds;
-				if (this.credentials && this.credentials.user) {
+				if (this.credentials && this.credentials.user && this.credentials.password) {
 					var rawCreds = tenant + '/' + this.credentials.user + ':' + this.credentials.password;
 					var byteCreds = utf8.encode(rawCreds);
 					encodedCreds = base64.encode(byteCreds);
@@ -73,10 +74,7 @@ module.exports = function(RED) {
 					if (encodedCreds[encodedCreds.length-1]== '=') {
 						encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
 					}
-
-				} // else if: TODO: check for creds in settings.js file
-				// encodedCreds = value.from.settings
-				else {
+			} else {
 					msg.error = "Missing credentials";
 					msg.statusCode = 403;
 					msg.payload = "error: Missing Credentials";

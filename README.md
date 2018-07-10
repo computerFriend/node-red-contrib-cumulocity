@@ -1,5 +1,5 @@
 # node-red-contrib-cumulocity
-This is set of nodes supporting integration with Cumulocity (currently still growing)
+This is a set of nodes supporting integration with Cumulocity (currently still growing)
 
 ## Installation
 run npm -g install node-red-contrib-cumulocity
@@ -10,8 +10,7 @@ Currently includes integration for measurements, events, and alarms.
 ## Usage
 
 ### Required inputs:
-* cumulocity instance name
-* tenant name
+* Cumulocity Configuration (includes host, tenant, & login information)
 
 ### Optional inputs:
 * deviceId: limits data to 1 specific device
@@ -20,8 +19,7 @@ Currently includes integration for measurements, events, and alarms.
 
 
 ## Why this module?
-This node is the first in a series of nodes designed to integrate with the Cumulocity IoT platform.  The long-term goal is to create a complete library of node-red nodes that can pair with Cumulocity (analogous to the AWS & Salesforce node-red libraries).
+This node library is an ever-expanding set of nodes designed to integrate with the Cumulocity IoT platform.  The long-term goal is to create a complete library of node-red nodes, such that anyone trying to integrate with Cumulocity will not need to write any code to do so.
 
 ## What's next?
-More nodes & abstraction of credentials (store cumulocity login information all in one config node, instead of having to re-enter the same data for each node)
-* Nodes supporting device registration are next
+* Nodes supporting device registration

@@ -1,0 +1,52 @@
+<script type="text/javascript">
+	RED.nodes.registerType('c8y-config', {
+		category: 'config',
+		defaults: {
+			name: {
+				value: ""
+			},
+			host: {
+				value: "",
+				required: true
+			},
+			tenant: {
+				value: "",
+				required: true
+			}
+		},
+		credentials: {
+			user: {
+				type: "text"
+			},
+			password: {
+				type: "password"
+			}
+		},
+		label: function() {
+			return this.name;
+		}
+	});
+</script>
+
+<script type="text/x-red" data-template-name="c8y-config">
+<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+		<input type="text" id="node-config-input-name">
+</div>
+	<div class="form-row">
+		<label for="node-config-input-host"></i> Host</label>
+		<input type="text" id="node-config-input-host">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-tenant"></i> Tenant</label>
+		<input type="text" id="node-config-input-tenant">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-user"><i class="fa fa-user"></i> user</label>
+		<input type="text" id="node-config-input-user">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+		<input type="password" id="node-config-input-password">
+	</div>
+</script>

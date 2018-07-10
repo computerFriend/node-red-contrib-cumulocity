@@ -1,17 +1,12 @@
-<script type="text/x-red" data-template-name="c8y-events">
+manual<script type="text/x-red" data-template-name="c8y-events">
 	<div class="form-row">
 		<label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
 		<input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
 	</div>
-
+	
 	<div class="form-row">
-		<label for="node-input-domain"></i> Instance Name</label>
-		<input type="text" id="node-input-domain" placeholder="instanceName.io">
-	</div>
-
-	<div class="form-row">
-		<label for="node-input-tenant"></i> Tenant Name</label>
-		<input type="text" id="node-input-tenant" placeholder="tenantName">
+		<label for="node-input-cumulocityConfig"><i class="fa fa-user"></i> Cumulocity Config</label>
+		<input type="text" id="node-input-cumulocityConfig">
 	</div>
 
 	<div class="form-row">
@@ -34,21 +29,6 @@
 	</div>
 
 	<div class="form-row">
-		<input type="checkbox" id="node-input-useAuth" style="display: inline-block; width: auto; vertical-align: top;">
-		<label for="node-input-useAuth" style="width: 70%;"><span data-i18n="c8yevents.basicauth"></span> Use basic authentication </label>
-		<div style="margin-left: 20px" class="node-input-useAuth-row hide">
-			<div class="form-row">
-				<label for="node-input-user"><i class="fa fa-user"></i><span data-i18n="common.label.username"> Username</span></label>
-				<input type="text" id="node-input-user">
-			</div>
-			<div class="form-row">
-				<label for="node-input-password"><i class="fa fa-lock"></i><span> Password</span></label>
-				<input type="password" id="node-input-password">
-			</div>
-		</div>
-	</div>
-
-	<div class="form-row">
 		<label for="node-input-ret"><i class="fa fa-arrow-left"></i><span> Return</span></label>
 		<select type="text" id="node-input-ret" style="width:70%;">
         <option selected value="txt">UTF-8 string</option>
@@ -62,10 +42,9 @@
 	<p>Provides a node fetching measurement data from cumulocity.</p>
 	<p>The tenant name must be configured in the node.</p>
 	<ul>
-		<li>Required inputs:
-			<ul>Cumulocity Instance Name (string)</ul>
-			<ul>Tenant Name (string)</ul>
-		</li>
+	<li>Required inputs:
+		<ul>Cumulocity Configuration (add a new one or select from the list)</ul>
+	</li>
 		<li>Optional inputs (to filter results):
 			<ul>DeviceId (number) - filter by device</ul>
 			<ul>StartDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
@@ -94,16 +73,12 @@
 			name: {
 				value: ""
 			},
+			cumulocityConfig: {
+				type: "c8y-config",
+				required: true
+			},
 			ret: {
 				value: "txt"
-			},
-			domain: {
-				value: "",
-				required: true
-			},
-			tenant: {
-				value: "",
-				required: true
 			},
 			deviceId: {
 				value: ""
@@ -118,14 +93,6 @@
 				value: "25"
 			}
 		},
-		credentials: {
-			user: {
-				type: "text"
-			},
-			password: {
-				type: "password"
-			}
-		},
 		inputs: 1,
 		outputs: 1,
 		icon: "cumulocity-logo.png",
@@ -136,22 +103,6 @@
 			return this.name ? "node_label_italic" : "";
 		},
 		oneditprepare: function() {
-			$("#node-input-useAuth").change(function() {
-				if ($(this).is(":checked")) {
-					$(".node-input-useAuth-row").show();
-				} else {
-					$(".node-input-useAuth-row").hide();
-					$('#node-input-user').val('');
-					$('#node-input-password').val('');
-				}
-			});
-			if (this.credentials.user || this.credentials.has_password) {
-				$('#node-input-useAuth').prop('checked', true);
-			} else {
-				$('#node-input-useAuth').prop('checked', false);
-			}
-			$("#node-input-useAuth").change();
-
 			$("#node-input-ret").change(function() {
 				if ($("#node-input-ret").val() === "obj") {
 					$("#tip-json").show();

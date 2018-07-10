@@ -64,6 +64,7 @@ module.exports = function(RED) {
 				}
 
 				// Adding auth header // TODO: develop a more secure way to do this
+				// TODO: adjust to handle config object as well
 				var encodedCreds;
 				if (this.credentials && this.credentials.user) {
 					var rawCreds = tenant + '/' + this.credentials.user + ':' + this.credentials.password;
@@ -158,7 +159,13 @@ module.exports = function(RED) {
 
 	// Register the Node
 	RED.nodes.registerType("c8y-events", c8yEvents, {
-		credentials: {
+		manual: {
+			domain: {
+				type: "text"
+			},
+			tenant: {
+				type: "text"
+			},
 			user: {
 				type: "text"
 			},
