@@ -14,6 +14,9 @@ module.exports = function(RED) {
 		// Setup node
 		RED.nodes.createNode(this, n);
 		var node = this;
+		this.config = RED.nodes.getNode(n.cumulocityConfig);
+		var tenant = this.config.tenant,
+			domain = this.config.host;
 
 		this.ret = n.ret || "txt"; // default return type is text
 		if (RED.settings.httpRequestTimeout) {
@@ -22,11 +25,29 @@ module.exports = function(RED) {
 			this.reqTimeout = 60000;
 		}
 
+		// Adding auth header // TODO: develop a more secure way to do this
+		if (this.config.user && this.config.password) {
+			var rawCreds = tenant + '/' + this.config.user + ':' + this.credentials.password;
+			var byteCreds = utf8.encode(rawCreds);
+			encodedCreds = base64.encode(byteCreds);
+			// Trim off trailing =
+			if (encodedCreds[encodedCreds.length-1]== '=') {
+				encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
+			}
+	} else {
+			msg.error = "Missing credentials";
+			msg.statusCode = 403;
+			msg.payload = "error: Missing Credentials";
+			node.status({
+				fill: "red",
+				shape: "ring",
+				text: "Missing credentials!"
+			});
+			return node.send(msg);
+		}
+
 		// 1) Process inputs to Node
 		this.on("input", function(msg) {
-
-			var tenant = n.tenant;
-			var domain = n.domain; // TODO: get this from settings value in the future
 
 				node.status({
 					fill: "blue",
@@ -37,13 +58,8 @@ module.exports = function(RED) {
 				// Build query obj
 				var reqQuery = {};
 
-				if (n.startDate) {
-					reqQuery.dateFrom = new Date(n.startDate).toISOString();
-				}
-
-				if(n.endDate) {
-					reqQuery.dateTo = new Date(n.endDate).toISOString();
-				}
+				if (n.startDate) reqQuery.dateFrom = new Date(n.startDate).toISOString();
+				if(n.endDate) reqQuery.dateTo = new Date(n.endDate).toISOString();
 
 				if (n.pageSize) {
 					reqQuery.pageSize = n.pageSize;
@@ -63,52 +79,29 @@ module.exports = function(RED) {
 					pathAndQuery = basePath + '?' + thisQueryString;
 				}
 
-				// Adding auth header // TODO: develop a more secure way to do this
-				// TODO: adjust to handle config object as well
-				var encodedCreds;
-				if (this.credentials && this.credentials.user) {
-					var rawCreds = tenant + '/' + this.credentials.user + ':' + this.credentials.password;
-					var byteCreds = utf8.encode(rawCreds);
-					encodedCreds = base64.encode(byteCreds);
-					// Trim off trailing =
-					if (encodedCreds[encodedCreds.length-1]== '=') {
-						encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
-					}
-
-				} // else if: TODO: check for creds in settings.js file
-				// encodedCreds = value.from.settings
-				else {
-					msg.error = "Missing credentials";
-					msg.statusCode = 403;
-					msg.payload = "error: Missing Credentials";
-					node.status({
-						fill: "red",
-						shape: "ring",
-						text: "Missing credentials!"
-					});
-					return node.send(msg);
-				}
-
 				var respBody, respStatus;
 				var options = {
-					url: "https://" + domain + basePath + '?' + thisQueryString,
+					url: "https://" + domain + pathAndQuery,
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
 					}
 				};
 
 				var thisReq = request.get(options, function(err, resp, body) {
-
 					if (err || !resp) {
 						var nodeStatusText = "Unexpected error";
 						if (err) {
 							msg.payload = err.toString();
 							msg.statusCode = 499;
 							nodeStatusText = 'Error';
-						} else if (!resp) {
+						} else if (!resp || !body) {
 							msg.statusCode = 500;
 							msg.payload = "Server error: No response object";
 							nodeStatusText = "Server error";
+						} else if (!JSON.parse(body).events) {
+							nodeStatusText = "Response contained no events";
+							msg.statusCode = 299;
+							msg.payload = nodeStatusText;
 						}
 						node.status({
 							fill: "red",
@@ -117,15 +110,19 @@ module.exports = function(RED) {
 						});
 						return node.send(msg);
 					} else {
-
 						var events = JSON.parse(body).events;
+
 						msg.payload = events;
 						msg.statusCode = resp.statusCode || resp.status;
-						if (events.length < 1) msg.statusCode = 244;
+						if (events && events.length < 1) {
+							msg.statusCode = 244;
+						} else if (!events){
+							msg.statusCode = 299;
+						}
 						msg.headers = resp.headers;
 
 						// Error-handling
-						if (body.error || resp.statusCode > 299) {
+						if (JSON.parse(body).error || resp.statusCode > 299) {
 							node.status({
 								fill: "red",
 								shape: "ring",
@@ -133,14 +130,22 @@ module.exports = function(RED) {
 							});
 						}
 
-
 						// Transform output
 						if (node.ret !== "bin") {
-							msg.payload = JSON.stringify(events).toString('utf8'); // txt
+							if (events) {
+								msg.payload = JSON.stringify(events).toString('utf8'); // txt
+							} else {
+								msg.payload = body; // txt
+
+							}
 
 							if (node.ret === "obj") {
 								try {
-									msg.payload = events;
+									if (events) {
+										msg.payload = JSON.parse(events);
+									} else {
+										msg.payload = JSON.parse(body);
+									}
 								} catch (e) {
 									node.warn(RED._("c8yevents.errors.json-error"));
 								}
@@ -159,13 +164,7 @@ module.exports = function(RED) {
 
 	// Register the Node
 	RED.nodes.registerType("c8y-events", c8yEvents, {
-		manual: {
-			domain: {
-				type: "text"
-			},
-			tenant: {
-				type: "text"
-			},
+		credentials: {
 			user: {
 				type: "text"
 			},

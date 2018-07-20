@@ -88,7 +88,7 @@ module.exports = function(RED) {
 
 				var respBody, respStatus;
 				var options = {
-					url: "https://" + domain + basePath + '?' + thisQueryString,
+					url: "https://" + domain + pathAndQuery,
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
 					}
