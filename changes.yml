@@ -1,2 +1,5 @@
+0.1.1:
+  - patch: fixed c8y-alarms auth error that slipped past local testing somehow
+
 0.1.0:
   - stable build of 3 basic functions: getEvents, getMeasurements, & getAlarms

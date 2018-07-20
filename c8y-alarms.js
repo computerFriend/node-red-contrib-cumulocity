@@ -65,9 +65,8 @@ module.exports = function(RED) {
 
 				var encodedCreds = '';
 
-				// Adding auth header // TODO: develop a more secure way to do this
-				if (this.credentials && this.credentials.user && this.credentials.password) {
-					var rawCreds = tenant + '/' + this.credentials.user + ':' + this.credentials.password;
+				if (this.config.user && this.config.password) {
+					var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
 					var byteCreds = utf8.encode(rawCreds);
 					encodedCreds = base64.encode(byteCreds);
 					// Trim off trailing =
