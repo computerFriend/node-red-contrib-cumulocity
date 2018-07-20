@@ -143,9 +143,9 @@ module.exports = function(RED) {
 							if (node.ret === "obj") {
 								try {
 									if (events) {
-										msg.payload = JSON.parse(events);
+										msg.payload = events;
 									} else {
-										msg.payload = JSON.parse(body);
+										msg.payload = body;
 									}
 								} catch (e) {
 									node.warn(RED._("c8yevents.errors.json-error"));

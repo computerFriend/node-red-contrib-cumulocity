@@ -14,6 +14,9 @@ module.exports = function(RED) {
 		// Setup node
 		RED.nodes.createNode(this, n);
 		var node = this;
+		this.config = RED.nodes.getNode(n.cumulocityConfig);
+		var tenant = this.config.tenant,
+			domain = this.config.host;
 
 		this.ret = n.ret || "txt"; // default return type is text
 		if (RED.settings.httpRequestTimeout) {
@@ -24,9 +27,6 @@ module.exports = function(RED) {
 
 		// 1) Process inputs to Node
 		this.on("input", function(msg) {
-
-			var tenant = n.tenant;
-			var domain = n.domain; // TODO: get this from settings value in the future
 
 				node.status({
 					fill: "blue",
@@ -63,20 +63,18 @@ module.exports = function(RED) {
 					pathAndQuery = basePath + '?' + thisQueryString;
 				}
 
-				// Adding auth header // TODO: develop a more secure way to do this
-				var encodedCreds;
-				if (this.credentials && this.credentials.user) {
-					var rawCreds = tenant + '/' + this.credentials.user + ':' + this.credentials.password;
+				var encodedCreds = '';
+
+				if (this.config.user && this.config.password) {
+
+					var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
 					var byteCreds = utf8.encode(rawCreds);
 					encodedCreds = base64.encode(byteCreds);
 					// Trim off trailing =
 					if (encodedCreds[encodedCreds.length-1]== '=') {
 						encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
 					}
-
-				} // else if: TODO: check for creds in settings.js file
-				// encodedCreds = value.from.settings
-				else {
+			} else {
 					msg.error = "Missing credentials";
 					msg.statusCode = 403;
 					msg.payload = "error: Missing Credentials";
@@ -90,7 +88,7 @@ module.exports = function(RED) {
 
 				var respBody, respStatus;
 				var options = {
-					url: "https://" + domain + basePath + '?' + thisQueryString,
+					url: "https://" + domain + pathAndQuery,
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
 					}
@@ -141,7 +139,7 @@ module.exports = function(RED) {
 								try {
 									msg.payload = measurements;
 								} catch (e) {
-									node.warn(RED._("c8yMeasurements.errors.json-error"));
+									node.warn(RED._("c8ymeasurements.errors.json-error"));
 								}
 							}
 						}
@@ -154,7 +152,7 @@ module.exports = function(RED) {
 
 		}); // end of on.input
 
-	} // end of c8yMeasurements fxn
+	} // end of c8ymeasurements fxn
 
 	// Register the Node
 	RED.nodes.registerType("c8y-measurements", c8yMeasurements, {
