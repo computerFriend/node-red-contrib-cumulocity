@@ -27,7 +27,8 @@ module.exports = function(RED) {
 
 		// Adding auth header // TODO: develop a more secure way to do this
 		if (this.config.user && this.config.password) {
-			var rawCreds = tenant + '/' + this.config.user + ':' + this.credentials.password;
+
+			var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
 			var byteCreds = utf8.encode(rawCreds);
 			encodedCreds = base64.encode(byteCreds);
 			// Trim off trailing =
@@ -81,7 +82,7 @@ module.exports = function(RED) {
 
 				var respBody, respStatus;
 				var options = {
-					url: "https://" + domain + pathAndQuery,
+					url: "https://" + tenant + '.' + domain + pathAndQuery, // TODO: do this without SO MUCH concatenation, geez
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
 					}
