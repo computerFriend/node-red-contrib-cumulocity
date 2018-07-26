@@ -3,7 +3,7 @@ manual<script type="text/x-red" data-template-name="c8y-events">
 		<label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
 		<input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
 	</div>
-	
+
 	<div class="form-row">
 		<label for="node-input-cumulocityConfig"><i class="fa fa-user"></i> Cumulocity Config</label>
 		<input type="text" id="node-input-cumulocityConfig">
@@ -12,6 +12,11 @@ manual<script type="text/x-red" data-template-name="c8y-events">
 	<div class="form-row">
 		<label for="node-input-deviceId"><i class="fa fa-barcode"></i> DeviceId </label>
 		<input type="text" id="node-input-deviceId" placeholder="(optional)">
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-eventType"><i class="fa fa-filter"></i> Event Type </label>
+		<input type="text" id="node-input-eventType" placeholder="(optional)">
 	</div>
 
 	<div class="form-row">
@@ -24,7 +29,7 @@ manual<script type="text/x-red" data-template-name="c8y-events">
 	</div>
 
 	<div class="form-row">
-		<label for="node-input-pageSize"><i class="fa fa-file-alt"></i> Page Size </label>
+		<label for="node-input-pageSize"><i class="fa fa-file"></i> Page Size </label>
 		<input type="text" id="node-input-pageSize" placeholder="(optional)">
 	</div>
 
@@ -43,14 +48,14 @@ manual<script type="text/x-red" data-template-name="c8y-events">
 	<p>The tenant name must be configured in the node.</p>
 	<ul>
 	<li>Required inputs:
-		<ul>Cumulocity Configuration (add a new one or select from the list)</ul>
+		<ul><strong>Cumulocity Configuration</strong> (add a new one or select from the list)</ul>
 	</li>
 		<li>Optional inputs (to filter results):
-			<ul>DeviceId (number) - filter by device</ul>
-			<ul>StartDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
-			<ul>EndDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
-			<ul>MeasurementId (number) - return a specific measurement</ul>
-			<ul>PageSize (number) - number of events to include per page. (Default: 25)</ul>
+			<ul><strong>DeviceId</strong> (number) - filter by device</ul>
+			<ul><strong>EventType</strong> (string) - filter by event type</ul>
+			<ul><strong>StartDate</strong> (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
+			<ul><strong>EndDate</strong> (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
+			<ul><strong>PageSize (number)</strong> - number of events to include per page. (Default: 25)</ul>
 		</li>
 
 	</ul>
@@ -78,9 +83,12 @@ manual<script type="text/x-red" data-template-name="c8y-events">
 				required: true
 			},
 			ret: {
-				value: "txt"
+				value: "obj"
 			},
 			deviceId: {
+				value: ""
+			},
+			eventType: {
 				value: ""
 			},
 			startDate: {
@@ -90,7 +98,7 @@ manual<script type="text/x-red" data-template-name="c8y-events">
 				value: ""
 			},
 			pageSize: {
-				value: "25"
+				value: "20"
 			}
 		},
 		inputs: 1,

@@ -60,7 +60,9 @@ module.exports = function(RED) {
 				var reqQuery = {};
 
 				if (n.startDate) reqQuery.dateFrom = new Date(n.startDate).toISOString();
-				if(n.endDate) reqQuery.dateTo = new Date(n.endDate).toISOString();
+				if (n.endDate) reqQuery.dateTo = new Date(n.endDate).toISOString;
+				if (n.eventType) reqQuery.type = n.eventType;
+
 
 				if (n.pageSize) {
 					reqQuery.pageSize = n.pageSize;

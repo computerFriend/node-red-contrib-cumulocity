@@ -3,3 +3,7 @@
 
 0.1.0:
   - stable build of 3 basic functions: getEvents, getMeasurements, & getAlarms
+  - all nodes use configuration nodes for authentication (instead of maunual input)
+
+0.1.2:
+  - added ability to filter events by eventType
