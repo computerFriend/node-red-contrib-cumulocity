@@ -51,9 +51,6 @@ module.exports = function(RED) {
 				reqQuery.pageSize = 25; // TODO: externalize default value
 			}
 
-			console.log('node.severity:' + n.severity);
-			console.log('node.alarmStatus:' + n.alarmStatus);
-
 			switch (n.severity) {
 				case "critical":
 					reqQuery.severity = "CRITICAL";
@@ -96,8 +93,6 @@ module.exports = function(RED) {
 			} else {
 				pathAndQuery = basePath + '?' + thisQueryString;
 			}
-
-			console.log('thisQueryString: ' + thisQueryString);
 
 			var encodedCreds = '';
 
