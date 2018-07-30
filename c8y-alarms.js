@@ -6,7 +6,7 @@ var request = require('request'),
 
 // define constants
 // NOTE: not using 'const' bc we want this node to be compatible with early ES versions (<ES6)
-var	basePath = '/alarm/alarms'; // this is a constant, dependent on c8y
+var basePath = '/alarm/alarms'; // this is a constant, dependent on c8y
 
 module.exports = function(RED) {
 
@@ -28,126 +28,162 @@ module.exports = function(RED) {
 		// 1) Process inputs to Node
 		this.on("input", function(msg) {
 
-				node.status({
-					fill: "blue",
-					shape: "dot",
-					text: "Fetching alarms..."
-				});
+			node.status({
+				fill: "blue",
+				shape: "dot",
+				text: "Fetching alarms..."
+			});
 
-				// Build query obj
-				var reqQuery = {};
+			// Build query obj
+			var reqQuery = {};
 
-				if (n.startDate) {
-					reqQuery.dateFrom = new Date(n.startDate).toISOString();
-				}
+			if (n.startDate) {
+				reqQuery.dateFrom = new Date(n.startDate).toISOString();
+			}
 
-				if(n.endDate) {
-					reqQuery.dateTo = new Date(n.endDate).toISOString();
-				}
+			if (n.endDate) {
+				reqQuery.dateTo = new Date(n.endDate).toISOString();
+			}
 
-				if (n.pageSize) {
-					reqQuery.pageSize = n.pageSize;
-				} else {
-					reqQuery.pageSize = 25; // TODO: externalize default value
-				}
-
-				if (n.deviceId) reqQuery.source = n.deviceId;
-
-				// Stringify query obj
-				var thisQueryString = queryString.stringify(reqQuery);
-
-				var pathAndQuery;
-				if (n.deviceId) {
-					pathAndQuery = basePath + 'series?' + thisQueryString;
-				} else {
-					pathAndQuery = basePath + '?' + thisQueryString;
-				}
-
-				var encodedCreds = '';
-
-				if (this.config.user && this.config.password) {
-					var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
-					var byteCreds = utf8.encode(rawCreds);
-					encodedCreds = base64.encode(byteCreds);
-					// Trim off trailing =
-					if (encodedCreds[encodedCreds.length-1]== '=') {
-						encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
-					}
+			if (n.pageSize) {
+				reqQuery.pageSize = n.pageSize;
 			} else {
-					msg.error = "Missing credentials";
-					msg.statusCode = 403;
-					msg.payload = "error: Missing Credentials";
+				reqQuery.pageSize = 25; // TODO: externalize default value
+			}
+
+			console.log('node.severity:' + n.severity);
+			console.log('node.alarmStatus:' + n.alarmStatus);
+
+			switch (n.severity) {
+				case "critical":
+					reqQuery.severity = "CRITICAL";
+					break;
+				case "major":
+					reqQuery.severity = "MAJOR";
+					break;
+				case "minor":
+					reqQuery.severity = "MINOR";
+					break;
+				case "warning":
+					reqQuery.severity = "WARNING";
+					break;
+				default: // all alarms, don't filter (do nothing)
+					break;
+			}
+
+			switch (n.alarmStatus) {
+				case "active":
+					reqQuery.status = "ACTIVE";
+					break;
+				case "acknowledged":
+					reqQuery.status = "ACKNOWLEDGED";
+					break;
+				case "cleared":
+					reqQuery.status = "CLEARED";
+					break;
+				default: // all alarms, don't filter (do nothing)
+					break;
+			}
+
+			if (n.deviceId) reqQuery.source = n.deviceId;
+
+			// Stringify query obj
+			var thisQueryString = queryString.stringify(reqQuery);
+
+			var pathAndQuery;
+			if (n.deviceId) {
+				pathAndQuery = basePath + 'series?' + thisQueryString;
+			} else {
+				pathAndQuery = basePath + '?' + thisQueryString;
+			}
+
+			console.log('thisQueryString: ' + thisQueryString);
+
+			var encodedCreds = '';
+
+			if (this.config.user && this.config.password) {
+				var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
+				var byteCreds = utf8.encode(rawCreds);
+				encodedCreds = base64.encode(byteCreds);
+				// Trim off trailing =
+				if (encodedCreds[encodedCreds.length - 1] == '=') {
+					encodedCreds = encodedCreds.substring(0, encodedCreds.length - 2);
+				}
+			} else {
+				msg.error = "Missing credentials";
+				msg.statusCode = 403;
+				msg.payload = "error: Missing Credentials";
+				node.status({
+					fill: "red",
+					shape: "ring",
+					text: "Missing credentials!"
+				});
+				return node.send(msg);
+			}
+
+			var respBody, respStatus;
+			var options = {
+				url: "https://" + domain + pathAndQuery,
+				headers: {
+					'Authorization': 'Basic ' + encodedCreds
+				}
+			};
+
+			var thisReq = request.get(options, function(err, resp, body) {
+
+				if (err || !resp) {
+					var nodeStatusText = "Unexpected error";
+					if (err) {
+						msg.payload = err.toString();
+						msg.statusCode = 499;
+						nodeStatusText = 'Error';
+					} else if (!resp) {
+						msg.statusCode = 500;
+						msg.payload = "Server error: No response object";
+						nodeStatusText = "Server error";
+					}
 					node.status({
 						fill: "red",
 						shape: "ring",
-						text: "Missing credentials!"
+						text: nodeStatusText
 					});
 					return node.send(msg);
-				}
+				} else {
 
-				var respBody, respStatus;
-				var options = {
-					url: "https://" + domain + pathAndQuery,
-					headers: {
-						'Authorization': 'Basic ' + encodedCreds
-					}
-				};
+					var alarms = JSON.parse(body).alarms;
+					msg.payload = alarms;
+					msg.statusCode = resp.statusCode || resp.status;
+					if (alarms.length < 1) msg.statusCode = 244;
+					msg.headers = resp.headers;
 
-				var thisReq = request.get(options, function(err, resp, body) {
-
-					if (err || !resp) {
-						var nodeStatusText = "Unexpected error";
-						if (err) {
-							msg.payload = err.toString();
-							msg.statusCode = 499;
-							nodeStatusText = 'Error';
-						} else if (!resp) {
-							msg.statusCode = 500;
-							msg.payload = "Server error: No response object";
-							nodeStatusText = "Server error";
-						}
+					// Error-handling
+					if (body.error || resp.statusCode > 299) {
 						node.status({
 							fill: "red",
 							shape: "ring",
-							text: nodeStatusText
+							text: body.message
 						});
-						return node.send(msg);
-					} else {
-
-						var alarms = JSON.parse(body).alarms;
-						msg.payload = alarms;
-						msg.statusCode = resp.statusCode || resp.status;
-						if (alarms.length < 1) msg.statusCode = 244;
-						msg.headers = resp.headers;
-
-						// Error-handling
-						if (body.error || resp.statusCode > 299) {
-							node.status({
-								fill: "red",
-								shape: "ring",
-								text: body.message
-							});
-						}
+					}
 
 
-						// Transform output
-						if (node.ret !== "bin") {
-							msg.payload = JSON.stringify(alarms).toString('utf8'); // txt
+					// Transform output
+					if (node.ret !== "bin") {
+						msg.payload = JSON.stringify(alarms).toString('utf8'); // txt
 
-							if (node.ret === "obj") {
-								try {
-									msg.payload = alarms;
-								} catch (e) {
-									node.warn(RED._("c8yalarms.errors.json-error"));
-								}
+						if (node.ret === "obj") {
+							try {
+								msg.payload = alarms;
+							} catch (e) {
+								node.warn(RED._("c8yalarms.errors.json-error"));
 							}
 						}
 					}
+				}
 
-					node.send(msg);
-					node.status({});
+				node.send(msg);
+				node.status({});
 
-				});
+			});
 
 		}); // end of on.input
 

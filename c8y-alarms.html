@@ -24,6 +24,26 @@
 	</div>
 
 	<div class="form-row">
+		<label for="node-input-severity"><i class="fa fa-exclamation-triangle"></i> Severity </label>
+		<select type="text" id="node-input-severity" style="width:70%;">
+				<option selected value="all">All</option>
+				<option value="critical">Critical</option>
+				<option value="major">Major</option>
+				<option value="minor">Minor</option>
+				<option value="warning">Warning</option>
+		</select>	</div>
+
+	<div class="form-row">
+		<label for="node-input-alarmStatus"><i class="fa clipboard-check"></i> Status </label>
+		<select type="text" id="node-input-alarmStatus" style="width:70%;">
+			<option selected value="all">All</option>
+        <option value="active">Active</option>
+        <option value="acknowledged">Acknowledged</option>
+				<option value="cleared">Cleared</option>
+    </select>
+	</div>
+
+	<div class="form-row">
 		<label for="node-input-pageSize"><i class="fa fa-file-alt"></i> Page Size </label>
 		<input type="text" id="node-input-pageSize" placeholder="(optional)">
 	</div>
@@ -87,6 +107,12 @@
 			},
 			endDate: {
 				value: ""
+			},
+			severity: {
+				value: "all"
+			},
+			alarmStatus: {
+				value: "all"
 			},
 			pageSize: {
 				value: "25"
