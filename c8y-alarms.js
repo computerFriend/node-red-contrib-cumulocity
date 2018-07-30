@@ -185,15 +185,6 @@ module.exports = function(RED) {
 	} // end of c8yalarms fxn
 
 	// Register the Node
-	RED.nodes.registerType("c8y-alarms", c8yAlarms, {
-		credentials: {
-			user: {
-				type: "text"
-			},
-			password: {
-				type: "password"
-			}
-		}
-	});
+	RED.nodes.registerType("c8y-alarms", c8yAlarms, {});
 
 };
