@@ -1,3 +1,5 @@
+0.2.0:
+  - added status & severity filtering for alarms
 0.1.1:
   - patch: fixed c8y-alarms auth error that slipped past local testing somehow
 
