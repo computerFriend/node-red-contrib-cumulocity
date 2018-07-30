@@ -6,7 +6,7 @@ var request = require('request'),
 
 // define constants
 // NOTE: not using 'const' bc we want this node to be compatible with early ES versions (<ES6)
-var basePath = '/alarm/alarms'; // this is a constant, dependent on c8y
+var basePath = '/alarm/alarms?'; // this is a constant, dependent on c8y
 
 module.exports = function(RED) {
 
@@ -87,13 +87,6 @@ module.exports = function(RED) {
 			// Stringify query obj
 			var thisQueryString = queryString.stringify(reqQuery);
 
-			var pathAndQuery;
-			if (n.deviceId) {
-				pathAndQuery = basePath + 'series?' + thisQueryString;
-			} else {
-				pathAndQuery = basePath + '?' + thisQueryString;
-			}
-
 			var encodedCreds = '';
 
 			if (this.config.user && this.config.password) {
@@ -118,7 +111,7 @@ module.exports = function(RED) {
 
 			var respBody, respStatus;
 			var options = {
-				url: "https://" + domain + pathAndQuery,
+				url: "https://" + domain + basePath + thisQueryString,
 				headers: {
 					'Authorization': 'Basic ' + encodedCreds
 				}
@@ -126,8 +119,26 @@ module.exports = function(RED) {
 
 			var thisReq = request.get(options, function(err, resp, body) {
 
-				if (err || !resp) {
-					var nodeStatusText = "Unexpected error";
+				var nodeStatusText = "Unexpected error";
+				var parsedBody = {};
+				if (body) {
+					try {
+						parsedBody = JSON.parse(body);
+					} catch (e) {
+						msg.payload = e;
+						msg.statusCode = 499;
+						nodeStatusText = 'Error parsing response';
+						node.status({
+							fill: "red",
+							shape: "ring",
+							text: nodeStatusText
+						});
+						return node.send(msg);
+					}
+				}
+
+				// TODO: surround JSON.parse with try-catch
+				if (err || !resp || parsedBody.error) {
 					if (err) {
 						msg.payload = err.toString();
 						msg.statusCode = 499;
@@ -136,6 +147,10 @@ module.exports = function(RED) {
 						msg.statusCode = 500;
 						msg.payload = "Server error: No response object";
 						nodeStatusText = "Server error";
+					} else if (parsedBody.error) {
+						msg.payload = parsedBody;
+						msg.statusCode = 499;
+						nodeStatusText = JSON.parse(body).error;
 					}
 					node.status({
 						fill: "red",
@@ -145,21 +160,23 @@ module.exports = function(RED) {
 					return node.send(msg);
 				} else {
 
-					var alarms = JSON.parse(body).alarms;
+					var alarms = parsedBody.alarms;
+
 					msg.payload = alarms;
 					msg.statusCode = resp.statusCode || resp.status;
-					if (alarms.length < 1) msg.statusCode = 244;
-					msg.headers = resp.headers;
-
-					// Error-handling
-					if (body.error || resp.statusCode > 299) {
+					if (!alarms) {
+						msg.payload = parsedBody;
+						msg.statusCode = 499;
+						nodeStatusText = "Body did not contain alarms attribute";
 						node.status({
 							fill: "red",
 							shape: "ring",
-							text: body.message
+							text: nodeStatusText
 						});
-					}
+					} else {
 
+					if (alarms.length < 1) msg.statusCode = 244;
+					msg.headers = resp.headers;
 
 					// Transform output
 					if (node.ret !== "bin") {
@@ -173,10 +190,11 @@ module.exports = function(RED) {
 							}
 						}
 					}
-				}
+					node.send(msg);
+					node.status({});
+				} // body contained alarms
 
-				node.send(msg);
-				node.status({});
+			}
 
 			});
 
