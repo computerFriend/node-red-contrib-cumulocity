@@ -33,16 +33,13 @@ module.exports = function(RED) {
 			});
 
 			// Build PUT body based on node input
-			var putBody = {};
+			var reqBody = {};
 
 			// Initialize msg object
 			if (!msg.payload)	msg.payload = {};
 			if (!msg.statusCode) msg.statusCode = 400;
 
-			console.log('Made it to here');
-
 			if ((n.alarmStatus == 'noChange' || n.alarmStatus == '') && (n.severity == 'noChange' || n.severity == '')) {
-				console.log('Detected no changes');
 				msg.statusCode = 244;
 				msg.payload = {"message":"No changes detected in input body"};
 				// Return with soft-error
@@ -55,10 +52,8 @@ module.exports = function(RED) {
 
 			} else {
 
-				console.log('Detected a change:\n > alarmStatus: ' + n.alarmStatus + '\n > severity: ' + n.severity);
-
-				if (n.alarmStatus != 'noChange') putBody.status = n.alarmStatus;
-				if (n.severity != 'noChange') putBody.severity = n.severity;
+				if (n.alarmStatus != 'noChange') reqBody.status = n.alarmStatus;
+				if (n.severity != 'noChange') reqBody.severity = n.severity;
 
 				// Build auth header
 				var encodedCreds = '';
@@ -85,13 +80,33 @@ module.exports = function(RED) {
 
 				// Build request
 				var options = {
+					method: 'PUT',
 					url: "https://" + domain + basePath + n.alarmId,
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
-					}
+					},
+					json: reqBody
 				};
 
 				// Send request
+				request(options, function(err, response, body) {
+					if (err) {
+						console.log('Error: ' + err);
+						msg.error = err;
+						msg.statusCode = resp.statusCode || resp.status;
+						node.status({
+							fill: "red",
+							shape: "ring",
+							text: err.toString()
+						});
+						return node.send(msg);
+					} else {
+						msg.statusCode = 200;
+						msg.payload = {"message": "Alarm updated successfully"};
+						node.status({});
+						return node.send(msg);
+					}
+				});
 
 				// Send Node response
 
