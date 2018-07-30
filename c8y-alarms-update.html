@@ -1,0 +1,109 @@
+<script type="text/x-red" data-template-name="c8y-alarms-update">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
+		<input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-cumulocityConfig"><i class="fa fa-user"></i> Cumulocity Config</label>
+		<input type="text" id="node-input-cumulocityConfig">
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-alarmId"><i class="fa fa-barcode"></i> Alarm Id </label>
+		<input type="text" id="node-input-alarmId" placeholder="(optional)">
+	</div>
+
+
+	<div class="form-row">
+		<label for="node-input-severity"><i class="fa fa-exclamation-triangle"></i> Severity </label>
+		<select type="text" id="node-input-severity" style="width:70%;">
+		<option selected value="noChange">(No change)</option>
+				<option value="CRITICAL">Critical</option>
+				<option value="MAJOR">Major</option>
+				<option value="MINOR">Minor</option>
+				<option value="WARNING">Warning</option>
+		</select>
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-alarmStatus"><i class="fa clipboard-check"></i> Status </label>
+		<select type="text" id="node-input-alarmStatus" style="width:70%;">
+			<option selected value="noChange">(No change)</option>
+        <option value="ACTIVE">Active</option>
+        <option value="ACKNOWLEDGED">Acknowledged</option>
+				<option value="CLEARED">Cleared</option>
+    </select>
+	</div>
+
+</script>
+
+<script type="text/x-red" data-help-name="c8y-alarms-update">
+	<p>Provides a node fetching measurement data from cumulocity.</p>
+	<p>The tenant name must be configured in the node.</p>
+	<ul>
+		<li>Required inputs:
+			<ul>Cumulocity Configuration (add a new one or select from the list)</ul>
+			<ul>Alarm Id (number) - filter by device</ul>
+		</li>
+		<li>Optional inputs (to filter results):
+			<ul>Severity (string) - severity of the alarm (Critical, Major, Minor, or Warning)</ul>
+			<ul>Status (string) - status of the alarm (Active, Acknowledged, or Cleared)</ul>
+
+		</li>
+
+	</ul>
+	<p>
+		The output message contains the following properties:
+		<ul>
+			<li><code>payload</code> is an array of all alarms</li>
+			<li><code>statusCode</code> is the status code of the response, or the error code if the request could not be completed</li>
+			<li><code>headers</code> is an object containing the response headers</li>
+		</ul>
+	</p>
+	<p>More information about the Cumulocity API can be found <a href="http://cumulocity.com/guides/reference/alarms/">here </a>.</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('c8y-alarms-update', {
+		category: 'cumulocity',
+		color: "rgb(106, 210, 252)",
+		defaults: {
+			name: {
+				value: ""
+			},
+			cumulocityConfig: {
+				type: "c8y-config",
+				required: true
+			},
+			alarmId: {
+				value: "",
+				required: true
+			},
+			alarmStatus: {
+				value: ""
+			},
+			severity: {
+				value: ""
+			}
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: "cumulocity-logo.png",
+		label: function() {
+			return this.name || "Update C8Y Alarms";
+		},
+		labelStyle: function() {
+			return this.name ? "node_label_italic" : "";
+		},
+		oneditprepare: function() {
+			$("#node-input-ret").change(function() {
+				if ($("#node-input-ret").val() === "obj") {
+					$("#tip-json").show();
+				} else {
+					$("#tip-json").hide();
+				}
+			});
+		}
+	});
+</script>
