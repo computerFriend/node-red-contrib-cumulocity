@@ -39,19 +39,13 @@
 </script>
 
 <script type="text/x-red" data-help-name="c8y-alarms-update">
-	<p>Provides a node fetching measurement data from cumulocity.</p>
+	<p>Update a specific alarm in Cumulocity (by alarmId)</p>
 	<p>The tenant name must be configured in the node.</p>
 	<ul>
 		<li>Required inputs:
 			<ul>Cumulocity Configuration (add a new one or select from the list)</ul>
 			<ul>Alarm Id (number) - filter by device</ul>
 		</li>
-		<li>Optional inputs (to filter results):
-			<ul>Severity (string) - severity of the alarm (Critical, Major, Minor, or Warning)</ul>
-			<ul>Status (string) - status of the alarm (Active, Acknowledged, or Cleared)</ul>
-
-		</li>
-
 	</ul>
 	<p>
 		The output message contains the following properties:

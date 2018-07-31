@@ -59,7 +59,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="c8y-alarms">
-	<p>Provides a node fetching measurement data from cumulocity.</p>
+	<p>Get a list of alarms & their descriptions from a Cumulocity tenant</p>
 	<p>The tenant name must be configured in the node.</p>
 	<ul>
 		<li>Required inputs:
@@ -69,6 +69,8 @@
 			<ul>DeviceId (number) - filter by device</ul>
 			<ul>StartDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
 			<ul>EndDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
+			<ul>Severity (String) - filter by alarm severity (Critical, Major, Minor, or Warning)</ul>
+			<ul>Status (String) - filter by alarm status (Active, Acknowledged, or Cleared)</ul>
 			<ul>PageSize (number) - number of alarms to include per page. (Default: 25)</ul>
 		</li>
 
