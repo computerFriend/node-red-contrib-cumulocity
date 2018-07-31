@@ -17,7 +17,6 @@ module.exports = function(RED) {
 		var tenant = this.config.tenant,
 			domain = this.config.host;
 
-		this.ret = n.ret || "txt"; // default return type is text
 		if (RED.settings.httpRequestTimeout) {
 			this.reqTimeout = parseInt(RED.settings.httpRequestTimeout) || 60000;
 		} else {
@@ -91,7 +90,6 @@ module.exports = function(RED) {
 				// Send request
 				request(options, function(err, response, body) {
 					if (err) {
-						console.log('Error: ' + err);
 						msg.error = err;
 						msg.statusCode = resp.statusCode || resp.status;
 						node.status({

@@ -18,6 +18,8 @@ module.exports = function(RED) {
 		var tenant = this.config.tenant,
 			domain = this.config.host;
 
+		var fullBase = tenant + "." + domain + basePath;
+
 		this.ret = n.ret || "txt"; // default return type is text
 		if (RED.settings.httpRequestTimeout) {
 			this.reqTimeout = parseInt(RED.settings.httpRequestTimeout) || 60000;
@@ -111,7 +113,7 @@ module.exports = function(RED) {
 
 			var respBody, respStatus;
 			var options = {
-				url: "https://" + domain + basePath + thisQueryString,
+				url: "https://" + fullBase + thisQueryString,
 				headers: {
 					'Authorization': 'Basic ' + encodedCreds
 				}
@@ -137,7 +139,6 @@ module.exports = function(RED) {
 					}
 				}
 
-				// TODO: surround JSON.parse with try-catch
 				if (err || !resp || parsedBody.error) {
 					if (err) {
 						msg.payload = err.toString();

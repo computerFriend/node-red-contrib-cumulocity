@@ -6,7 +6,7 @@ var request = require('request'),
 
 // define constants
 // NOTE: not using 'const' bc we want this node to be compatible with early ES versions (<ES6)
-var	basePath = '/event/events'; // this is a constant, dependent on c8y
+var	basePath = '/event/events?'; // this is a constant, dependent on c8y
 
 module.exports = function(RED) {
 
@@ -17,6 +17,8 @@ module.exports = function(RED) {
 		this.config = RED.nodes.getNode(n.cumulocityConfig);
 		var tenant = this.config.tenant,
 			domain = this.config.host;
+
+		var fullBase = tenant + "." + domain + basePath;
 
 		this.ret = n.ret || "txt"; // default return type is text
 		if (RED.settings.httpRequestTimeout) {
@@ -75,16 +77,9 @@ module.exports = function(RED) {
 				// Stringify query obj
 				var thisQueryString = queryString.stringify(reqQuery);
 
-				var pathAndQuery;
-				if (n.deviceId) {
-					pathAndQuery = basePath + 'series?' + thisQueryString;
-				} else {
-					pathAndQuery = basePath + '?' + thisQueryString;
-				}
-
 				var respBody, respStatus;
 				var options = {
-					url: "https://" + tenant + '.' + domain + pathAndQuery, // TODO: do this without SO MUCH concatenation, geez
+					url: "https://" + fullBase + thisQueryString,
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
 					}
