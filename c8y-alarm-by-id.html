@@ -1,0 +1,65 @@
+<script type="text/x-red" data-template-name="c8y-alarm-by-id">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
+		<input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-cumulocityConfig"><i class="fa fa-user"></i> Cumulocity Config</label>
+		<input type="text" id="node-input-cumulocityConfig">
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-alarmId"><i class="fa fa-barcode"></i> Alarm Id </label>
+		<input type="text" id="node-input-alarmId" placeholder="(optional)">
+	</div>
+
+</script>
+
+<script type="text/x-red" data-help-name="c8y-alarm-by-id">
+	<p>Get information about a specific alarm</p>
+	<p>The tenant name must be configured in the node.</p>
+	<ul>
+		<li>Required inputs:
+			<ul><strong>Cumulocity Configuration</strong> (add a new one or select from the list)</ul>
+			<ul><strong>Alarm Id</strong> (Number) - Unique ID of alarm to be fetched</ul>
+		</li>
+	</ul>
+	<p>
+		The output message contains the following properties:
+		<ul>
+			<li><code>payload</code> contains all information about the alarm ID fetched, or a msg if the alarm could not be found</li>
+			<li><code>statusCode</code> is the status code of the response, or the error code if the request could not be completed</li>
+			<li><code>headers</code> is an object containing the response headers</li>
+		</ul>
+	</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('c8y-alarm-by-id', {
+		category: 'cumulocity',
+		color: "rgb(106, 210, 252)",
+		defaults: {
+			name: {
+				value: ""
+			},
+			cumulocityConfig: {
+				type: "c8y-config",
+				required: true
+			},
+			alarmId: {
+				value: "",
+				required: true
+			}
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: "cumulocity-logo.png",
+		label: function() {
+			return this.name || "Get C8Y Alarm by ID";
+		},
+		labelStyle: function() {
+			return this.name ? "node_label_italic" : "";
+		}
+	});
+</script>

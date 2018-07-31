@@ -33,7 +33,8 @@
       "c8y-events": "c8y-events.js",
       "c8y-measurements": "c8y-measurements.js",
       "c8y-alarms": "c8y-alarms.js",
-      "c8y-alarms-update": "c8y-alarms-update.js"
+      "c8y-alarms-update": "c8y-alarms-update.js",
+      "c8y-alarm-by-id": "c8y-alarm-by-id.js"
     }
   }
 }
