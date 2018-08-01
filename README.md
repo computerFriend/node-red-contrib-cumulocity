@@ -9,10 +9,10 @@ Currently includes integration for measurements, events, and alarms.
 
 ## Usage
 
-### Required inputs:
+### Required inputs (vary for each node):
 * Cumulocity Configuration (includes host, tenant, & login information)
 
-### Optional inputs:
+### Optional inputs (vary for each node):
 * deviceId: limits data to 1 specific device
 * startDate, endDate: returns data for only a target date range
 * pageSize: Defines maximum number of records to return

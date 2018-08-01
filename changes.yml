@@ -1,3 +1,7 @@
+0.2.2:
+  - patch for tenant url fix
+  - documentation updates
+
 0.2.1:
   - improved error-handling
   - added alarms-update node
