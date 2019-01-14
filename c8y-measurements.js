@@ -66,9 +66,9 @@ module.exports = function(RED) {
 					var byteCreds = utf8.encode(rawCreds);
 					encodedCreds = base64.encode(byteCreds);
 					// Trim off trailing =
-					if (encodedCreds[encodedCreds.length-1]== '=') {
-						encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
-					}
+					// if (encodedCreds[encodedCreds.length-1]== '=') {
+					// 	encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
+					// }
 			} else {
 					msg.error = "Missing credentials";
 					msg.statusCode = 403;
@@ -91,29 +91,66 @@ module.exports = function(RED) {
 
 				var thisReq = request.get(options, function(err, resp, body) {
 
-					if (err || !resp) {
 						var nodeStatusText = "Unexpected error";
+						var parsedBody;
+						try {
+							parsedBody = JSON.parse(body);
+						} catch (parseError) {
+							console.error('Error parsing JSON: ' + parseError);
+							node.status({
+								fill: "red",
+								shape: "ring",
+								text: "JSON parse error"
+							});
+						return node.send(msg);
+						}
 						if (err) {
 							msg.payload = err.toString();
 							msg.statusCode = 499;
 							nodeStatusText = 'Error';
+							node.status({
+								fill: "red",
+								shape: "ring",
+								text: nodeStatusText
+							});
+						return node.send(msg);
 						} else if (!resp) {
 							msg.statusCode = 500;
 							msg.payload = "Server error: No response object";
 							nodeStatusText = "Server error";
-						}
+							node.status({
+								fill: "red",
+								shape: "ring",
+								text: nodeStatusText
+							});
+						return node.send(msg);
+					} else if (parsedBody.error) {
+						msg.payload = parsedBody.error;
+						console.error("Error: " + parsedBody.error);
 						node.status({
 							fill: "red",
 							shape: "ring",
-							text: nodeStatusText
+							text: parsedBody.error
 						});
+					return node.send(msg);
+
+					} else if (!parsedBody.measurements) {
+							msg.statusCode = 499;
+							msg.payload = "No measurements in response body";
+							nodeStatusText = 'No measurements in response body';
+							console.error('Unexpected response body: ' + body);
+							node.status({
+								fill: "red",
+								shape: "ring",
+								text: nodeStatusText
+							});
 						return node.send(msg);
 					} else {
 
 						var measurements = JSON.parse(body).measurements;
 						msg.payload = measurements;
 						msg.statusCode = resp.statusCode || resp.status;
-						if (measurements.length < 1) msg.statusCode = 244;
+						if (measurements && measurements.length < 1) msg.statusCode = 244;
 						msg.headers = resp.headers;
 
 						// Error-handling

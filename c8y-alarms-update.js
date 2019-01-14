@@ -1,5 +1,5 @@
 // require in libs
-var request = require('request'),
+	var request = require('request'),
 	utf8 = require('utf8'),
 	base64 = require('base-64');
 
@@ -61,10 +61,10 @@ module.exports = function(RED) {
 					var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
 					var byteCreds = utf8.encode(rawCreds);
 					encodedCreds = base64.encode(byteCreds);
-					// Trim off trailing =
-					if (encodedCreds[encodedCreds.length - 1] == '=') {
-						encodedCreds = encodedCreds.substring(0, encodedCreds.length - 2);
-					}
+					// // Trim off trailing =
+					// if (encodedCreds[encodedCreds.length - 1] == '=') {
+					// 	encodedCreds = encodedCreds.substring(0, encodedCreds.length - 2);
+					// }
 				} else {
 					msg.error = "Missing credentials";
 					msg.statusCode = 403;
@@ -80,7 +80,7 @@ module.exports = function(RED) {
 				// Build request
 				var options = {
 					method: 'PUT',
-					url: "https://" + domain + basePath + n.alarmId,
+					url: "https://" + tenant + '.' + domain + basePath + n.alarmId,
 					headers: {
 						'Authorization': 'Basic ' + encodedCreds
 					},
@@ -91,11 +91,21 @@ module.exports = function(RED) {
 				request(options, function(err, response, body) {
 					if (err) {
 						msg.error = err;
-						msg.statusCode = resp.statusCode || resp.status;
+						msg.statusCode = response.statusCode || response.status;
 						node.status({
 							fill: "red",
 							shape: "ring",
 							text: err.toString()
+						});
+						return node.send(msg);
+					} else if (body.error) {
+						msg.error = body.error;
+						msg.payload = body.message || body.error;
+						msg.statusCode = response.statusCode || response.status;
+						node.status({
+							fill: "red",
+							shape: "ring",
+							text: body.error
 						});
 						return node.send(msg);
 					} else {
@@ -105,9 +115,6 @@ module.exports = function(RED) {
 						return node.send(msg);
 					}
 				});
-
-				// Send Node response
-
 
 			} // end of else (noChange)
 

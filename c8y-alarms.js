@@ -96,9 +96,9 @@ module.exports = function(RED) {
 				var byteCreds = utf8.encode(rawCreds);
 				encodedCreds = base64.encode(byteCreds);
 				// Trim off trailing =
-				if (encodedCreds[encodedCreds.length - 1] == '=') {
-					encodedCreds = encodedCreds.substring(0, encodedCreds.length - 2);
-				}
+				// if (encodedCreds[encodedCreds.length - 1] == '=') {
+				// 	encodedCreds = encodedCreds.substring(0, encodedCreds.length - 2);
+				// }
 			} else {
 				msg.error = "Missing credentials";
 				msg.statusCode = 403;

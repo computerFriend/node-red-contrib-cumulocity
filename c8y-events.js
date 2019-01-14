@@ -34,9 +34,9 @@ module.exports = function(RED) {
 			var byteCreds = utf8.encode(rawCreds);
 			encodedCreds = base64.encode(byteCreds);
 			// Trim off trailing =
-			if (encodedCreds[encodedCreds.length-1]== '=') {
-				encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
-			}
+			// if (encodedCreds[encodedCreds.length-1]== '=') {
+			// 	encodedCreds = encodedCreds.substring(0,encodedCreds.length-2);
+			// }
 	} else {
 			msg.error = "Missing credentials";
 			msg.statusCode = 403;
@@ -96,7 +96,7 @@ module.exports = function(RED) {
 							msg.statusCode = 500;
 							msg.payload = "Server error: No response object";
 							nodeStatusText = "Server error";
-						} else if (!JSON.parse(body).events) {
+						} else if (!JSON.parse(body).events || !JSON.parse(body).events.length == 0) {
 							nodeStatusText = "Response contained no events";
 							msg.statusCode = 299;
 							msg.payload = nodeStatusText;

@@ -1,7 +1,12 @@
+0.2.5:
+  - SO MANY BUG FIXES!!
+  - Fixed authentication bug in which auth header was unnecessarily trimmed
+  - Fixed URL-building bug for the alarms-update node (tenant was excluded from url)
+  - Improved error-handling in all nodes
+
 0.2.2:
   - patch for tenant url fix
   - documentation updates
-
 0.2.1:
   - improved error-handling
   - added alarms-update node
