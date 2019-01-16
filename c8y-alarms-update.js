@@ -38,6 +38,7 @@ module.exports = function(RED) {
 			if (!msg.payload)	msg.payload = {};
 			if (!msg.statusCode) msg.statusCode = 400;
 
+			// If no changes were entered, let the user know
 			if ((n.alarmStatus == 'noChange' || n.alarmStatus == '') && (n.severity == 'noChange' || n.severity == '')) {
 				msg.statusCode = 244;
 				msg.payload = {"message":"No changes detected in input body"};
@@ -51,8 +52,8 @@ module.exports = function(RED) {
 
 			} else {
 
-				if (n.alarmStatus != 'noChange') reqBody.status = n.alarmStatus;
-				if (n.severity != 'noChange') reqBody.severity = n.severity;
+				if (n.alarmStatus != '' && n.alarmStatus != 'noChange') reqBody.status = n.alarmStatus;
+				if (n.severity != '' && n.severity != 'noChange') reqBody.severity = n.severity;
 
 				// Build auth header
 				var encodedCreds = '';
@@ -61,10 +62,7 @@ module.exports = function(RED) {
 					var rawCreds = tenant + '/' + this.config.user + ':' + this.config.password;
 					var byteCreds = utf8.encode(rawCreds);
 					encodedCreds = base64.encode(byteCreds);
-					// // Trim off trailing =
-					// if (encodedCreds[encodedCreds.length - 1] == '=') {
-					// 	encodedCreds = encodedCreds.substring(0, encodedCreds.length - 2);
-					// }
+
 				} else {
 					msg.error = "Missing credentials";
 					msg.statusCode = 403;
@@ -86,6 +84,8 @@ module.exports = function(RED) {
 					},
 					json: reqBody
 				};
+
+				console.log('Sending request body: ' + JSON.stringify(reqBody,null,2));
 
 				// Send request
 				request(options, function(err, response, body) {
