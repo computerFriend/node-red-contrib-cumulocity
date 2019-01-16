@@ -1,3 +1,6 @@
+0.2.6:
+  - cleaned up the alarm-update node
+
 0.2.5:
   - SO MANY BUG FIXES!!
   - Fixed authentication bug in which auth header was unnecessarily trimmed
