@@ -1,4 +1,4 @@
-<script type="text/x-red" data-template-name="c8y-alarms-update">
+<script type="text/x-red" data-template-name="c8y-alarm-update">
 	<div class="form-row">
 		<label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
 		<input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
@@ -38,7 +38,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="c8y-alarms-update">
+<script type="text/x-red" data-help-name="c8y-alarm-update">
 	<p>Update a specific alarm in Cumulocity (by alarmId)</p>
 	<p>The tenant name must be configured in the node.</p>
 	<ul>
@@ -58,7 +58,7 @@
 </script>
 
 <script type="text/javascript">
-	RED.nodes.registerType('c8y-alarms-update', {
+	RED.nodes.registerType('c8y-alarm-update', {
 		category: 'cumulocity',
 		color: "rgb(106, 210, 252)",
 		defaults: {
@@ -84,7 +84,7 @@
 		outputs: 1,
 		icon: "cumulocity-logo.png",
 		label: function() {
-			return this.name || "Update C8Y Alarms";
+			return this.name || "Update C8Y Alarm";
 		},
 		labelStyle: function() {
 			return this.name ? "node_label_italic" : "";

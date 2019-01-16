@@ -122,6 +122,6 @@ module.exports = function(RED) {
 	} // end of c8yAlarmsUpdate
 
 	// Register the Node
-RED.nodes.registerType("c8y-alarms-update", c8yAlarmsUpdate, {});
+RED.nodes.registerType("c8y-alarm-update", c8yAlarmsUpdate, {});
 
 };
