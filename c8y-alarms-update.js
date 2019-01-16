@@ -85,8 +85,6 @@ module.exports = function(RED) {
 					json: reqBody
 				};
 
-				console.log('Sending request body: ' + JSON.stringify(reqBody,null,2));
-
 				// Send request
 				request(options, function(err, response, body) {
 					if (err) {
