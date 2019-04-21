@@ -13,6 +13,10 @@
 		<label for="node-input-deviceId"><i class="fa fa-barcode"></i> DeviceId </label>
 		<input type="text" id="node-input-deviceId" placeholder="(optional)">
 	</div>
+	<div class="form-row">
+		<label for="node-input-type"><i class="fa fa-filter"></i> Measurement Type </label>
+		<input type="text" id="node-input-type" placeholder="(optional)">
+	</div>
 
 	<div class="form-row">
 		<label for="node-input-startDate"><i class="fa fa-calendar"></i> Start Date </label>
@@ -32,7 +36,6 @@
 		<label for="node-input-ret"><i class="fa fa-arrow-left"></i><span> Return</span></label>
 		<select type="text" id="node-input-ret" style="width:70%;">
         <option selected value="txt">UTF-8 string</option>
-        <option value="bin">Binary</option>
         <option value="obj">a parsed JSON object</option>
         </select>
 	</div>
@@ -50,6 +53,7 @@
 			<ul>StartDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
 			<ul>EndDate (ISO Date Format: YYYY-MM-DDTHH:MM:SSZ) - filter by date posted</ul>
 			<ul>MeasurementId (number) - return a specific measurement</ul>
+			<ul>Type (string) - filter by measurement type</ul>
 			<ul>PageSize (number) - number of measurements to include per page. (Default: 25)</ul>
 		</li>
 
@@ -81,6 +85,9 @@
 				required: true
 			},
 			deviceId: {
+				value: ""
+			},
+			type: {
 				value: ""
 			},
 			startDate: {

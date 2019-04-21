@@ -55,6 +55,8 @@ module.exports = function(RED) {
 
 				if (n.deviceId) reqQuery.source = n.deviceId;
 
+				if (n.type) reqQuery.type = n.type;
+
 				// Stringify query obj
 				var thisQueryString = queryString.stringify(reqQuery);
 
@@ -145,10 +147,8 @@ module.exports = function(RED) {
 								text: nodeStatusText
 							});
 						return node.send(msg);
-					} else {
-
-						var measurements = JSON.parse(body).measurements;
-						msg.payload = measurements;
+					} else { // no errors
+						msg.payload = parsedBody.measurements;
 						msg.statusCode = resp.statusCode || resp.status;
 						if (measurements && measurements.length < 1) msg.statusCode = 244;
 						msg.headers = resp.headers;
@@ -162,9 +162,7 @@ module.exports = function(RED) {
 							});
 						}
 
-
 						// Transform output
-						if (node.ret !== "bin") {
 							msg.payload = JSON.stringify(measurements).toString('utf8'); // txt
 
 							if (node.ret === "obj") {
@@ -174,7 +172,6 @@ module.exports = function(RED) {
 									node.warn(RED._("c8ymeasurements.errors.json-error"));
 								}
 							}
-						}
 					}
 
 					node.send(msg);

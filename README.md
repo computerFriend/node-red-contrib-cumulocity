@@ -17,9 +17,9 @@ Currently includes integration for measurements, events, and alarms.
 * startDate, endDate: returns data for only a target date range
 * pageSize: Defines maximum number of records to return
 
-
 ## Why this module?
 This node library is an ever-expanding set of nodes designed to integrate with the Cumulocity IoT platform.  The long-term goal is to create a complete library of node-red nodes, such that anyone trying to integrate with Cumulocity will not need to write any code to do so.
 
 ## What's next?
 * Nodes supporting device registration
+* Bulk alarm updates (extension of c8y-alarm-update)
